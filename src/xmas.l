@@ -1,6 +1,9 @@
 /* flex file for xmas v0.1 */
 
 %{
+	#include <stdio.h>
+	#include <string.h>
+
 	enum toktype {
 		ERR=-1,
 		TOK_EOF=0,
@@ -15,16 +18,25 @@
 		TOK_IF,
 		TOK_READ,
 		TOK_WRITE,
+		TOK_NAME,
 
 		TOK_PLUS,
 		TOK_MINUS,
 		TOK_MUL,
 		TOK_DIV,
-		TOK_MOD
+		TOK_MOD,
+		TOK_EQUALS,
+		
+		TOK_OPEN_RBRACKET,
+		TOK_CLOSE_RBRACKET,
+		TOK_OPEN_CBRACKET,
+		TOK_CLOSE_CBRACKET,
+		TOK_COMMA,
 	};
 %}
 
 %option noyywrap
+%option yylineno
 
 DIGIT	[0-9]
 NUM {DIGIT}+
@@ -51,12 +63,20 @@ grinch			return TOK_ELSE;		/* variable definition */
 santa			return TOK_IF;		/* if */
 say				return TOK_READ;			/* read */
 hear			return TOK_WRITE;		/* write */
+{ALPHA}+		return TOK_NAME;		
 
 \+				return TOK_PLUS;
 -				return TOK_MINUS;
 \*				return TOK_MUL;
 \/				return TOK_DIV;
 %				return TOK_MOD;
+=				return TOK_EQUALS;
+
+\(				return TOK_OPEN_RBRACKET;
+\)				return TOK_CLOSE_RBRACKET;
+\{				return TOK_OPEN_CBRACKET;
+\}				return TOK_CLOSE_RBRACKET;
+,				return TOK_COMMA;
 
 .				return ERR;
 
@@ -66,12 +86,14 @@ int main() {
 	enum toktype r;
 	while(r=yylex()) {
 		switch(r) {
-			case TOK_NUM: printf("n=%d\n", atoi(yytext)); break;
-			case TOK_STR: printf("s=%s\n", yytext); break;
+			case TOK_NUM: printf("%d,%d,\'null\'\n", r, atoi(yytext)); break;
+			case TOK_STR: printf("%d,0,%s\n", r, yytext); break;
+			case TOK_NAME: printf("%d,0,%s\n", r, yytext); break;
 
-			case ERR: 
-			case TOK_EOF: printf("err %d\n", r); break;
-			default: printf("-- %d --\n", r); break;
+			case ERR: printf("-1,0,\"\e[1;91mLexical Error\e[0m in line \e[1;33m%d\e[0m: Unexpected \e[0m\"\e[1;94m%s\e[0m\" found!", yylineno, yytext); break;
+			case TOK_EOF: printf("EOF\n"); break;
+			default: printf("%d,0,\'null\'\n", r); break;
 		}
 	}
+	printf("EOF\n");
 }

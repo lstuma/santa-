@@ -1,4 +1,6 @@
-bells a 1234
-ribbons b 'abcd'
+bells c = 1234
+ribbon my_var = 'abcd'
 # comment
-elf santa
+elf santa (bells a) {
+    gift a
+}
