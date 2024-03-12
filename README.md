@@ -15,33 +15,33 @@ All developmental scripts etc. are made for Linux, if you want to test on window
 # Language
 ## Tokens
 ```tokens
-#.*\n 			      /* comment */
-{WHITE}+		      /* whitespace */
-{NUM}			        TOK_NUM;
-'{ALPHA}*'		    TOK_STR;
-"{ALPHA}*"		    TOK_STR;
-ribbon			      TOK_DT_STR;		/* datatype text */
-bells			        TOK_DT_NUM;		/* datatype num */
-gift			        TOK_RET;		/* return */
-elf				        TOK_FUNC;			/* function definition */
-grinch			      TOK_ELSE;		/* variable definition */
-santa			        TOK_IF;		/* if */
-say				        TOK_READ;			/* read */
-hear			        TOK_WRITE;		/* write */
-{ALPHA}+		      TOK_NAME;
+#.*\n 			/* comment */
+{WHITE}+		/* whitespace */
+{NUM}			TOK_NUM;
+'{ALPHA}*'		TOK_STR;
+"{ALPHA}*"		TOK_STR;
+ribbon			TOK_DT_STR;		/* datatype text */
+bells			TOK_DT_NUM;		/* datatype num */
+gift			TOK_RET;		/* return */
+elf				TOK_FUNC;			/* function definition */
+grinch			TOK_ELSE;		/* variable definition */
+santa			TOK_IF;		/* if */
+say				TOK_READ;			/* read */
+hear			TOK_WRITE;		/* write */
+{ALPHA}+		TOK_NAME;		
 
-\+				        TOK_PLUS;
--				          TOK_MINUS;
-\*				        TOK_MUL;
-\/				        TOK_DIV;
-%				          TOK_MOD;
-=				          TOK_EQUALS;
+\+				TOK_PLUS;
+-				TOK_MINUS;
+\*				TOK_MUL;
+\/				TOK_DIV;
+%				TOK_MOD;
+=				TOK_EQUALS;
 
-\(				        TOK_OPEN_RBRACKET;
-\)				        TOK_CLOSE_RBRACKET;
-\{				        TOK_OPEN_CBRACKET;
-\}				        TOK_CLOSE_RBRACKET;
-,				          TOK_COMMA;
+\(				TOK_OPEN_RBRACKET;
+\)				TOK_CLOSE_RBRACKET;
+\{				TOK_OPEN_CBRACKET;
+\}				TOK_CLOSE_RBRACKET;
+,				TOK_COMMA;
 ```
 ## Syntax
 ```EBNF
