@@ -86,13 +86,13 @@ int main() {
 	enum toktype r;
 	while(r=yylex()) {
 		switch(r) {
-			case TOK_NUM: printf("%d,%d,\'null\'\n", r, atoi(yytext)); break;
-			case TOK_STR: printf("%d,0,%s\n", r, yytext); break;
-			case TOK_NAME: printf("%d,0,%s\n", r, yytext); break;
+			case TOK_NUM: printf("%d,%d,%d,\'null\'\n", r, yylineno, atoi(yytext)); break;
+			case TOK_STR: printf("%d,%d,0,%s\n", r, yylineno, yytext); break;
+			case TOK_NAME: printf("%d,%d,0,%s\n", r, yylineno, yytext); break;
 
-			case ERR: printf("-1,0,\"\e[1;91mLexical Error\e[0m in line \e[1;33m%d\e[0m: Unexpected \e[0m\"\e[1;94m%s\e[0m\" found!", yylineno, yytext); break;
+			case ERR: printf("-1,0,0,\"\e[1;91mLexical Error\e[0m in line \e[1;33m%d\e[0m: Unexpected \e[0m\"\e[1;94m%s\e[0m\" found!", yylineno, yytext); break;
 			case TOK_EOF: printf("EOF\n"); break;
-			default: printf("%d,0,\'null\'\n", r); break;
+			default: printf("%d,%d,0,\'null\'\n", r, yylineno); break;
 		}
 	}
 	printf("EOF\n");
