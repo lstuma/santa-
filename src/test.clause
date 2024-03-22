@@ -1,6 +1,9 @@
-bells c = 1234
-ribbon my_var = 'abcd'
-# comment
-elf santa (bells a) {
-    gift a
-}
+e = d
+b = 4
+a()
+if a+b:
+	print(c)
+	print(d)
+	a = d+b-4
+
+a(4,2,5,3,6,3,45,2,5,2,5,3)
