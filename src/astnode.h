@@ -49,6 +49,8 @@ enum ast_type {
 	ast_func_definition,
 	ast_func_def_args,
 
+	ast_terminal,
+
 	ast_block,
 };
 
@@ -57,14 +59,17 @@ class ASTNode {
     // type of node
     ast_type type = ast_undefined;
     // (optional) token that corresponds to the node
-    Token* token = nullptr;
+    Token token;
+    // parent node
+    ASTNode* parent = nullptr;
     // childreen of the node
     std::list<ASTNode> children;
 
     ASTNode();
     ASTNode(ast_type type);
-    ASTNode(ast_type type, Token* token);
-    ASTNode(ast_type type, Token* token, std::list<ASTNode> children);
+    ASTNode(ast_type type, Token token);
+    ASTNode(ast_type type, Token token, ASTNode* parent);
+    ASTNode(ast_type type, Token token, std::list<ASTNode> children);
     
     // get child at position i
   	ASTNode get(int i);
@@ -77,7 +82,11 @@ class ASTNode {
     // insert child at index i
     void insert(int i, ASTNode child);
     // remove child from end
-	ASTNode pop();
-	// remove child at index i
-	ASTNode pop(int i);
+		ASTNode pop();
+		// remove child at index i
+		ASTNode pop(int i);
+
+		// string representation of ast tree
+		std::string to_string();
+		std::string to_string(int depth);
 };

@@ -16,8 +16,7 @@
 #include "errorhandler.h"
 
 ErrorHandler::ErrorHandler() {
-	std::cout << stringify_error("ErrorHandler has been instantiated without handler for tokens (unsafe)", 
-		"\n  -1 | This will probably cause compiler to crash", -1,-1,1) << "\n";
+    
 }
 
 ErrorHandler::ErrorHandler(TokenAgency tokenagency) {

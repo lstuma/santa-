@@ -10,8 +10,8 @@
 #include <array>
 #include <stack>
 
+#include "color.h"
 #include "astnode.h"
-
 
 ASTNode::ASTNode() {
 }
@@ -20,12 +20,18 @@ ASTNode::ASTNode(ast_type type) {
   this->type = type;
 }
 
-ASTNode::ASTNode(ast_type type, Token* token) {
+ASTNode::ASTNode(ast_type type, Token token) {
   this->type = type;
   this->token = token;
 }
 
-ASTNode::ASTNode(ast_type type, Token* token, std::list<ASTNode> children) {
+ASTNode::ASTNode(ast_type type, Token token, ASTNode* parent) {
+  this->type = type;
+  this->token = token;
+  this->parent = parent;
+}
+
+ASTNode::ASTNode(ast_type type, Token token, std::list<ASTNode> children) {
   this->type = type;
   this->token = token;
   this->children = children;
@@ -50,11 +56,13 @@ ASTNode& ASTNode::operator[](std::size_t i) {
     
 // add child
 void ASTNode::append(ASTNode child) {
+  child.parent = this;
   this->children.push_back(child);
 }
 
 // inserts child at index i
 void ASTNode::insert(int i, ASTNode child) {
+  child.parent = this;
   auto it = this->children.begin();
   advance(it, i);
   this->children.insert(it, child);
@@ -63,7 +71,7 @@ void ASTNode::insert(int i, ASTNode child) {
 
 // remove child at end
 ASTNode ASTNode::pop() {
-  ASTNode last = get(childcount());
+  ASTNode last = get(childcount()-1);
   this->children.pop_back();
   return last;
 }
@@ -75,4 +83,19 @@ ASTNode ASTNode::pop(int i) {
   ASTNode elem = this->get(i);
   this->children.erase(it);
   return elem;
+}
+
+std::string ASTNode::to_string() {
+  return to_string(0);
+}
+
+std::string ASTNode::to_string(int depth) {
+  std::string s = "";
+  for(int i = 0; i < depth-1; i++) s += "│  ";
+  if(depth>0) s += "├─ ";
+  s += Color::bhblue + std::to_string(this->type) + Color::reset;
+  if(this->type==ast_terminal) s += " " + this->token.to_string();
+  s += "\n";
+  for(ASTNode child: this->children) s+=child.to_string(depth+1);
+  return s;
 }

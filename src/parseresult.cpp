@@ -14,6 +14,13 @@
 #include "color.h"
 #include "parseresult.h"
 
+ParseResult::ParseResult() {
+	this->success = false;
+	this->description = "undefined";
+	this->gravity = 0;
+	this->pos = 0;
+}
+
 ParseResult::ParseResult(bool success) {
 	this->success = success;
 	this->description = "undefined";
@@ -28,12 +35,29 @@ ParseResult::ParseResult(bool success, std::string description) {
 	this->pos = 0;
 }
 
+ParseResult::ParseResult(bool success, std::string description, ASTNode ast) {
+	this->success = success;
+	this->description = description;
+	this->gravity = 0;
+	this->pos = 0;
+	this->ast=ast;
+}
+
 ParseResult::ParseResult(bool success, std::string description, int gravity, int pos) {
 	this->success = success;
 	this->description = description;
 	this->gravity = gravity;
 	this->pos = pos;
 }
+
+ParseResult::ParseResult(bool success, std::string description, int gravity, int pos, ASTNode ast) {
+	this->success=success;
+	this->description=description;
+	this->gravity=gravity;
+	this->pos=pos;
+	this->ast=ast;
+}
+
 
 std::string ParseResult::to_string() {
     return "{success:" + Color::bblue + (success?"true":"false") + Color::reset +

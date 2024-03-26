@@ -50,6 +50,7 @@ class Token {
       std::string raw;
       int lineno;
       
+      Token();
       Token(toktype r, int n, std::string s);
       Token(toktype r, int lineno);
       Token(toktype r);

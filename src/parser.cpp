@@ -21,6 +21,7 @@ Parser::Parser(TokenAgency tokenagency) {
     this->lookahead = 0;
 
     this->ast = ASTNode();
+    this->current_node = this->ast;
     
     this->errorhandler = ErrorHandler(tokenagency);
 }
@@ -76,20 +77,36 @@ bool Parser::match(toktype tok) {
 	return false;
 }
 
+ASTNode Parser::ast_tok() {
+	// retrieves token at lookahead-1 and returns an ASTNode obj representing the terminal
+	return ast_tok(1);
+}
+ASTNode Parser::ast_tok(int i) {
+	// retrieves token at lookahead-i and returns an ASTNode obj representing the terminal
+	return ASTNode(ast_terminal, get_token(lookahead-i));
+}
+
 ParseResult Parser::parse_operation() {
 	/*
 		OPERATION ::= GENERIC_VALUE (OPERATOR GENERIC_VALUE)*
 	*/
 	save();
 	
-	if(match_generic_value()) {
-		while(match_operator()) if(!match_generic_value()) {
-			ParseResult result = ParseResult(false, "expression expected following operator", lookahead-pos, lookahead);
-			restore();
-			return result;
+	ParseResult r;
+	if((r=match_generic_value()).success) {
+		ASTNode tree = ASTNode(ast_operation);
+		tree.append(r.ast);
+		while((r=match_operator()).success) { 
+			tree.append(r.ast);
+			if(!(r=match_generic_value()).success) {
+				ParseResult result = ParseResult(false, "expression expected following operator", lookahead-pos, lookahead);
+				restore();
+				return result;
+			}
+			tree.append(r.ast);
 		}
 		unsave();
-		return ParseResult(true, "operation", 0, lookahead);
+		return ParseResult(true, "operation", 0, lookahead, tree);
 	}
 	ParseResult result = ParseResult(false, "expected expression (operation)", lookahead-pos, lookahead);
 	restore();
@@ -102,16 +119,20 @@ ParseResult Parser::parse_func_call() {
 	*/
 	save();
 	
+	ASTNode tree = ASTNode(ast_func_call);
 	if( match(tok_name) && 
 		match(tok_open_rbracket)) {
+		tree.append(ast_tok(2));
+		tree.append(ast_tok(1));
 		ParseResult r = parse_func_call_args();
 		if(!r.success) {
 			restore();
 			return r;
 		}
 		if(match(tok_close_rbracket)) {
+			tree.append(r.ast);
 			unsave();
-			return ParseResult(true, "function Call", 0, lookahead);
+			return ParseResult(true, "function Call", 0, lookahead, tree);
 		}
 	}
 	
@@ -125,32 +146,41 @@ ParseResult Parser::parse_func_call_args() {
 		FUNC_CALL ::= tok_name tok_open_rbracket FUNC_CALL_ARGS tok_close_rbracket
 	*/
 	save();
-	
-	if(parse_expression().success) {
-		while(match(tok_comma))
-			if(!parse_expression().success) {
+
+	ASTNode tree = ASTNode(ast_func_call_args);
+
+	ParseResult r;
+	if((r=parse_expression()).success) {
+		tree.append(r.ast);
+		while(match(tok_comma)) {
+			tree.append(ast_tok());
+			if(!(r=parse_expression()).success) {
 				ParseResult result = ParseResult(false, "stray comma", lookahead-pos, lookahead-1);
 				restore();
 				return result;
 			}
+			tree.append(r.ast);
+		}
 	}
 
 	unsave();
-	return ParseResult(true, "function call arguments", 0, lookahead);
+	return ParseResult(true, "function call arguments", 0, lookahead, tree);
 }
 
-bool Parser::match_generic_value() {
+ParseResult Parser::match_generic_value() {
 	/*
 		GENERIC_VALUE ::= tok_name | tok_num
 	*/
-	return match(tok_name) || match(tok_num);
+	if(match(tok_name) || match(tok_num)) return ParseResult(true, "generic value", ast_tok());
+	return ParseResult(false, "no generic value", 0, lookahead);
 }
 
-bool Parser::match_operator() {
+ParseResult Parser::match_operator() {
 	/*
 		OPERATOR ::= tok_plus | tok_minus | tok_mul | tok_div | tok_mod
 	*/
-	return match(tok_plus) || match(tok_minus) || match(tok_mul) || match(tok_div) || match(tok_mod);
+	if(match(tok_plus) || match(tok_minus) || match(tok_mul) || match(tok_div) || match(tok_mod)) return ParseResult(true, "operator", ast_tok());
+	return ParseResult(false, "no opeartor", 0, lookahead);
 }
 
 ParseResult Parser::parse_conditional() {
@@ -161,11 +191,15 @@ ParseResult Parser::parse_conditional() {
 	
 	if(match(tok_if))
 	{
+		ASTNode tree = ASTNode(ast_conditional);
+		tree.append(ast_tok());
 		ParseResult r = parse_expression();
 		if(r.success)
+			tree.append(r.ast);
 			if(match(tok_colon)) {
 				unsave();
-				return ParseResult(true, "conditional", 0, lookahead);
+				tree.append(ast_tok());
+				return ParseResult(true, "conditional", 0, lookahead, tree);
 			}
 	}
 	ParseResult result = ParseResult(false, "invalid if-statement", lookahead-pos, lookahead);
@@ -182,14 +216,21 @@ ParseResult Parser::parse_func_definition() {
 	if( match(tok_func) && 
 		match(tok_name) && 
 		match(tok_open_rbracket)) {
+		ASTNode tree = ASTNode(ast_func_definition);
+		tree.append(ast_tok(3));	// add tok_func
+		tree.append(ast_tok(2));	// add tok_name
+		tree.append(ast_tok(1));	// add tok_open_rbracket
 		ParseResult r = parse_func_definition_args().success;
 		if(!r.success) {
 			restore();
 			return r;
 		}
+		tree.append(r.ast);			// add func_definition_args
 		if(match(tok_close_rbracket) && match(tok_colon)) {
+			tree.append(ast_tok(2));	// add tok_close_rbracket
+			tree.append(ast_tok(1));	// add tok_colon
 			unsave();
-			return ParseResult(true, "function Definition", 0, lookahead);
+			return ParseResult(true, "function Definition", 0, lookahead, tree);
 		}
 	}
 	ParseResult result = ParseResult(false, "invalid function definition", lookahead-pos, lookahead);
@@ -202,16 +243,23 @@ ParseResult Parser::parse_func_definition_args() {
 		FUNC_DEF_ARGS ::= tok_name (tok_comma tok_name)*
 	*/
 	save();
+	ASTNode tree = ASTNode(ast_func_def_args);
 	
-	if(match(tok_name))
-		while(match(tok_comma)) if(!match(tok_name)) {
-			ParseResult result = ParseResult(false, "stray comma", lookahead-pos, lookahead-1);
-			restore();
-			return result;
+	if(match(tok_name)) {
+		tree.append(ast_tok());
+		while(match(tok_comma)) {
+			if(!match(tok_name)) {
+				ParseResult result = ParseResult(false, "stray comma", lookahead-pos, lookahead-1);
+				restore();
+				return result;
+			}
+			tree.append(ast_tok(2));
+			tree.append(ast_tok(1));
 		}
+	}
 	
 	unsave();
-	return ParseResult(true, "function Definition Args", 0, lookahead);
+	return ParseResult(true, "function Definition Args", 0, lookahead, tree);
 }
 
 ParseResult Parser::parse_variable_definition() {
@@ -219,15 +267,22 @@ ParseResult Parser::parse_variable_definition() {
 		VARIABLE_DEFINITION ::= tok_name tok_equals EXPRESSION
 	*/
 	save();
+
+	ASTNode tree = ASTNode(ast_variable_definition);
 	
 	if(match(tok_name) && match(tok_equals)) {
+		tree.append(ast_tok(2));
+		tree.append(ast_tok(1));
+
 		ParseResult r = parse_expression();
 		if(!r.success) {
 			restore();
 			return r;
 		}
+		tree.append(r.ast);
+
 		unsave();
-		return ParseResult(true, "variable definition", 0, lookahead);
+		return ParseResult(true, "variable definition", 0, lookahead, tree);
 	}
 
 	restore();
@@ -290,7 +345,7 @@ ParseResult Parser::parse_line() {
 	return r;
 }
 
-bool Parser::parse() {
+bool Parser::syntactic_analysis() {
 	// check for lexer errors
 	bool lex_ok = true;
 	for(int i = 0; i < this->length; i++) {
@@ -306,6 +361,7 @@ bool Parser::parse() {
 	while(this->pos<this->length && (r=parse_line()).success) {
 		pos = lookahead;
 		std::cout << r << "\n";
+		this->ast.append(r.ast);
 	}
 
 	if(!r.success) {
@@ -314,4 +370,24 @@ bool Parser::parse() {
 		return false;
 	}
 	return true;
+}
+
+bool Parser::semantic_analysis() {
+	std::cout << "Testing AST";
+	ASTNode tree = ASTNode();
+	tree.append(ASTNode(ast_statement));
+	tree.append(ASTNode(ast_expression));
+	tree[0].append(ASTNode(ast_operation));
+	Token t = Token("2,2,test,0,\"teststr\"");
+	tree[0][0].append(ASTNode(ast_terminal,t));
+	std::cout << "Printing AST to stdout\n";
+	std::cout << tree.to_string();
+	std::cout << "Removeing node from AST\n";
+	tree[0].pop();
+	std::cout << tree.to_string();
+
+	std::cout << "Printing constructed AST\n";
+	std::cout << ast.to_string();
+	std::cout << "Semantic Analysis NOT implemented\n";
+	return false;
 }

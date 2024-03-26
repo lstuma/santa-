@@ -34,11 +34,17 @@ int main() {
         for (Token t: tokenagency.tokenstream) cout << t.to_string() << "\n";
         printf("\n");
     }
-        
-    // now parse syntax
+
+    // syntactic analysis (+checking for previous lexer errors)
     Parser parser = Parser(tokenagency);
-    bool valid_code = parser.parse();
-    cout << (valid_code?Color::bhgreen+"[+]"+Color::reset+" Syntax is correct :)\n":Color::bhred+"[-]"+Color::reset+" Syntax is incorrect :(\n");
+    bool valid_syntax = parser.syntactic_analysis();
+    cout << (valid_syntax?Color::bhgreen+"[+]"+Color::reset+" Syntactic Analysis turned out correct :)\n":Color::bhred+"[-]"+Color::reset+" Syntactic Analysis turned out incorrect :(\n");
+    if(!valid_syntax) return -1;
+
+    // semantic analysis
+    bool valid_semantic = parser.semantic_analysis();
+    cout << (valid_semantic?Color::bhgreen+"[+]"+Color::reset+" Semantic Analysis turned out correct :)\n":Color::bhred+"[-]"+Color::reset+" Semantic Analysis turned out incorrect :(\n");
+    if(!valid_semantic) return -1;
 
     return 0;
 }

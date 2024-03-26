@@ -11,7 +11,6 @@
 #include <stack>
 
 #include "parseresult.h"
-#include "astnode.h"
 #include "errorhandler.h"
 
 class Parser {
@@ -28,6 +27,8 @@ class Parser {
 		toktype* tokens;
 		// AST
 		ASTNode ast;
+		// the current ast node that we are building onto
+		ASTNode current_node;
 		// token manager
 		TokenAgency tokenagency;
 		// error handler
@@ -50,6 +51,11 @@ class Parser {
 		// match an array of tokens at position (linepos|lookahead),(linepos|lookahead+1)...
 		bool match(toktype* tok, int length);
 
+		// retrieves token at lookahead-i and returns an ASTNode obj representing the terminal
+		ASTNode ast_tok(int i);
+		// retrieves token at lookahead-1 and returns an ASTNode obj representing the terminal
+		ASTNode ast_tok();
+	
 		// parse a single line/instruction
 		ParseResult parse_line();
 		// parse a single statement
@@ -61,8 +67,8 @@ class Parser {
 			ParseResult parse_operation();
 			ParseResult parse_func_call();
 			ParseResult parse_func_call_args();
-			bool match_generic_value();
-			bool match_operator();
+			ParseResult match_generic_value();
+			ParseResult match_operator();
 
 			// matching functions for statements
 			ParseResult parse_conditional();
@@ -72,5 +78,9 @@ class Parser {
 
 	public:
 		Parser(TokenAgency tokenagency);
-		bool parse();
+		// parses tokenstream for syntax (checks for lexer errors first)
+		// if successful, the Parser->ast variable should be populated
+		bool syntactic_analysis();
+		// parses the ast and checks for semantic errors (and indents)
+		bool semantic_analysis();
 };

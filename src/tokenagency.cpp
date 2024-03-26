@@ -14,6 +14,14 @@
 #include "color.h"
 #include "tokenagency.h"
 
+Token::Token() {
+    this->type = tok_eof;
+    this->lineno = 0;
+    this->num = 0;
+    this->str = "";
+    this->raw = "";
+}
+
 Token::Token(toktype r, int n, std::string s) {
   this->type = r;
   this->lineno = 0;
