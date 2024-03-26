@@ -19,6 +19,8 @@ class Parser {
 		int pos;
 		// lookahead position
 		int lookahead;
+		// indent of the current line
+		int indent;
 		// saved lookaheads for restoring them if anything fails to match
 		std::stack<int> saved_lookahead;
 		// length of array of tokens
@@ -62,6 +64,9 @@ class Parser {
 		ParseResult parse_statement();
 		// parse a single expression
 		ParseResult parse_expression();
+
+			// parsing an entire block
+			ParseResult parse_block();
 
 			// matching functions for expressions
 			ParseResult parse_operation();

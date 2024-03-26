@@ -56,7 +56,10 @@ std::string ErrorHandler::reconstruct_source(int start, int end, std::string col
                 if(i <= end && i >= start) s += Color::redhb + "_" + Color::reset + " ";
                 break;
             case tok_tab: 
-                s += Color::hblack + "___" + Color::reset;
+                if(i > end || i < start)
+                    s += Color::hblack + "___" + Color::reset;
+                else
+                    s += Color::bhred + "___" + Color::bhred;
                 break;
             case tok_open_rbracket:
             case tok_close_rbracket:

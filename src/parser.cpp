@@ -197,16 +197,24 @@ ParseResult Parser::parse_conditional() {
 		if(r.success)
 			tree.append(r.ast);
 			if(match(tok_colon)) {
-				unsave();
 				tree.append(ast_tok());
-				return ParseResult(true, "conditional", 0, lookahead, tree);
+				
+				// check following block
+				if((r=parse_block()).success) {
+					tree.append(r.ast);
+					unsave();
+					return ParseResult(true, "conditional", 0, lookahead, tree);
+				} else {
+					restore();
+					return r;
+				}
 			}
 	}
 	ParseResult result = ParseResult(false, "invalid if-statement", lookahead-pos, lookahead);
 	restore();
 	return result;
-}
 
+}
 ParseResult Parser::parse_func_definition() {
 	/*
 		FUNC_DEFINITION ::= tok_func tok_name tok_open_rbracket FUNC_DEF_ARGS tok_close_rbracket
@@ -229,8 +237,15 @@ ParseResult Parser::parse_func_definition() {
 		if(match(tok_close_rbracket) && match(tok_colon)) {
 			tree.append(ast_tok(2));	// add tok_close_rbracket
 			tree.append(ast_tok(1));	// add tok_colon
-			unsave();
-			return ParseResult(true, "function Definition", 0, lookahead, tree);
+			// check that there is a following block
+			if((r=parse_block()).success) {
+				tree.append(r.ast);
+				unsave();
+				return ParseResult(true, "function Definition", 0, lookahead, tree);
+			} else {
+				restore();
+				return r;
+			}
 		}
 	}
 	ParseResult result = ParseResult(false, "invalid function definition", lookahead-pos, lookahead);
@@ -329,12 +344,6 @@ ParseResult Parser::parse_expression() {
 }
 
 ParseResult Parser::parse_line() {
-	lookahead = pos;
-
-	// get indent of line
-	int indent = 0;
-	while(match(tok_tab)) indent++;
-
 	// parse line
 	ParseResult r = parse_statement();
 	if(!r.success) 
@@ -343,6 +352,39 @@ ParseResult Parser::parse_line() {
 	if(!match(tok_newline)) 
 		return ParseResult(false, "missing newline at end of statement", lookahead-pos, lookahead);
 	return r;
+}
+
+ParseResult Parser::parse_block() {
+	save();
+
+	ASTNode tree = ASTNode(ast_block);
+	int block_indent = this->indent+1;
+	
+	while(true) {
+		// eat up newlines and comments
+		while(match(tok_newline) || match(tok_comment));
+		// get indent of line
+		int indent = 0;
+		while(match(tok_tab)) indent++;
+
+		if(indent > block_indent) {
+			// indent is higher thant expected (invalid)
+			restore();
+			return ParseResult(false, "wrong indent (should be " + std::to_string(block_indent) + " but is " + std::to_string(indent) + ")", lookahead-pos, lookahead);
+		} else if(indent < block_indent) {
+			// block ends
+			unsave();
+			return ParseResult(true, "block", 0, lookahead, tree);
+		}
+
+		// parse the next instruction and add to block
+		ParseResult r = parse_line();
+		if(!r.success) {
+			restore();
+			return r;
+		}
+		tree.append(r.ast);
+	}
 }
 
 bool Parser::syntactic_analysis() {
@@ -358,16 +400,28 @@ bool Parser::syntactic_analysis() {
 	if(!lex_ok) return false;
 
 	ParseResult r = ParseResult(false, "parser failed (all)");
-	while(this->pos<this->length && (r=parse_line()).success) {
-		pos = lookahead;
-		std::cout << r << "\n";
-		this->ast.append(r.ast);
-	}
+	while(this->pos<this->length) {
+		// eat up newlines and comments
+		while(match(tok_newline) || match(tok_comment));
+		// get indent of line
+		this->indent = 0;
+		while(match(tok_tab)) this->indent++;
 
-	if(!r.success) {
-		std::cout << r << "\n";
-		std::cout << errorhandler.construct_error(r.description, r.pos, r.pos) << "\n";
-		return false;
+		if(this->indent != 0) {
+			std::cout << "la " << lookahead << " pos " << pos << "\n";
+			std::cout << errorhandler.construct_error("wrong indent (should be 0 but is " + std::to_string(indent) + ")", lookahead-1, lookahead-1) << "\n";
+			return false;
+		}
+
+		if((r=parse_line()).success) {
+			pos = lookahead;
+			std::cout << r << "\n";
+			this->ast.append(r.ast);
+		} else {
+			std::cout << r << "\n";
+			std::cout << errorhandler.construct_error(r.description, r.pos, r.pos) << "\n";
+			return false;	
+		}
 	}
 	return true;
 }

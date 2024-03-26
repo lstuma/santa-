@@ -78,9 +78,9 @@ class ASTNode {
     // returns length of children list
     int childcount();
     // add child
-    void append(ASTNode child);
+    ASTNode append(ASTNode child);
     // insert child at index i
-    void insert(int i, ASTNode child);
+    ASTNode insert(int i, ASTNode child);
     // remove child from end
 		ASTNode pop();
 		// remove child at index i

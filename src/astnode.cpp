@@ -55,17 +55,19 @@ ASTNode& ASTNode::operator[](std::size_t i) {
 }
     
 // add child
-void ASTNode::append(ASTNode child) {
+ASTNode ASTNode::append(ASTNode child) {
   child.parent = this;
   this->children.push_back(child);
+  return child;
 }
 
 // inserts child at index i
-void ASTNode::insert(int i, ASTNode child) {
+ASTNode ASTNode::insert(int i, ASTNode child) {
   child.parent = this;
   auto it = this->children.begin();
   advance(it, i);
   this->children.insert(it, child);
+  return child;
 }
 
 
