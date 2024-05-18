@@ -62,7 +62,7 @@ ALPHA	[a-zA-Z_]
 \"{ALPHA}*\"	return TOK_STR;
 ribbon			return TOK_DT_STR;		/* datatype text */
 bells			return TOK_DT_NUM;		/* datatype num */
-gift			return TOK_RET;		/* return */
+return			return TOK_RET;		/* return */
 elf				return TOK_FUNC;			/* function definition */
 else			return TOK_ELSE;		/* variable definition */
 if				return TOK_IF;		/* if */
@@ -106,7 +106,9 @@ int main() {
 			case TOK_COMMENT:
 				int i = 0; while(yytext[i]) i++;
 				yytext[i-1] = '\0';
-				printf("%d,%d,%s,0,\'null\'\n", r, yylineno-1, yytext); break;
+				printf("%d,%d,%s,0,\'null\'\n", r, yylineno-1, yytext);
+				// fake TOK_NEWLINE
+				printf("%d,%d,,0,\\n\n", 24, yylineno-1);
 				break;
 
 			case ERR: printf("-1,%d,%s,0,\"Unexpected \"\e[1;90m%s\e[1;94m\" found\n", yylineno, yytext, yytext); break;

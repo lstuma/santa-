@@ -1,16 +1,17 @@
 # santa()
 # Development
 ## Requirements
-- at least `g++12` or newer (will probably upgrade to `g++20` soon)
+- at least `g++12` or newer
 ## Testing
 Run the `t.sh` script under the folder _src_ to test the compiler on the _src/test.clause_ script.
-All developmental scripts etc. are made for Linux, if you want to test on windows, you're on your own.
+All developmental scripts etc. are made for Linux, if you want to test on windows, you're 
+ 1. on your own and
+ 2. the compiler is written for Linux, so good luck.
 ## Current state of development
 - Lexer works
-- Syntax Parser works (like ~90%)
-## Future developments
-- AST generation
--
+- Syntax Parser works (like ~90% of the time I think)
+- Semantic parsing works
+- Code generation ..... (⊃‿⊂)
 
 # Language
 ## Tokens

@@ -1,3 +1,6 @@
+#ifndef color_h
+#define color_h
+
 #include <iomanip>
 #include <iostream>
 #include <cassert>
@@ -86,3 +89,5 @@ class Color {
 		// reset
 		constexpr static std::string reset = "\e[0m";
 };
+
+#endif

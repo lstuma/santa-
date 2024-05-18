@@ -13,6 +13,7 @@
 
 #include "color.h"
 #include "parser.h"
+#include "codegen/generator.h"
 
 bool debug = true;
 
@@ -38,13 +39,27 @@ int main() {
     // syntactic analysis (+checking for previous lexer errors)
     Parser parser = Parser(tokenagency);
     bool valid_syntax = parser.syntactic_analysis();
-    cout << (valid_syntax?Color::bhgreen+"[+]"+Color::reset+" Syntactic Analysis turned out correct :)\n":Color::bhred+"[-]"+Color::reset+" Syntactic Analysis turned out incorrect :(\n");
-    if(!valid_syntax) return -1;
+    if(!valid_syntax) {
+        std::cout << Color::bhblue << "santa" << Color::reset << ":" << " syntactic analysis " << Color::bhred << "FAILED\n" << Color::reset;
+        return -1;
+    }
+    std::cout << Color::bhblue << "santa" << Color::reset << ":" << " syntactic analysis " << Color::bhgreen << "SUCCEDED\n" << Color::reset;
 
     // semantic analysis
     bool valid_semantic = parser.semantic_analysis();
-    cout << (valid_semantic?Color::bhgreen+"[+]"+Color::reset+" Semantic Analysis turned out correct :)\n":Color::bhred+"[-]"+Color::reset+" Semantic Analysis turned out incorrect :(\n");
-    if(!valid_semantic) return -1;
+    if(!valid_semantic) {
+        std::cout << Color::bhblue << "santa" << Color::reset << ":" << " semantic analysis " << Color::bhred << "FAILED\n" << Color::reset;
+        return -1;
+    }
+    std::cout << Color::bhblue << "santa" << Color::reset << ":" << " semantic analysis " << Color::bhgreen << "SUCCEDED\n" << Color::reset;
+
+    Generator generator = Generator(parser.ast);
+    bool generation_success = generator.generate();
+    if(!generation_success) {
+        std::cout << Color::bhblue << "santa" << Color::reset << ":" << " code generation " << Color::bhred << "FAILED\n" << Color::reset;
+        return -1;
+    }
+    std::cout << Color::bhblue << "santa" << Color::reset << ":" << " code generation " << Color::bhgreen << "SUCCEDED\n" << Color::reset;
 
     return 0;
 }

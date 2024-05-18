@@ -12,6 +12,7 @@
 
 #include "parseresult.h"
 #include "errorhandler.h"
+#include "scope.h"
 
 class Parser {
 	private:
@@ -27,9 +28,7 @@ class Parser {
 		int length;
 		// array of tokens
 		toktype* tokens;
-		// AST
-		ASTNode ast;
-		// the current ast node that we are building onto
+		// the current ast node that is being parsed (semantics)
 		ASTNode current_node;
 		// token manager
 		TokenAgency tokenagency;
@@ -72,6 +71,7 @@ class Parser {
 			ParseResult parse_operation();
 			ParseResult parse_func_call();
 			ParseResult parse_func_call_args();
+			ParseResult parse_pointer_expr();
 			ParseResult match_generic_value();
 			ParseResult match_operator();
 
@@ -80,8 +80,17 @@ class Parser {
 			ParseResult parse_variable_definition();
 			ParseResult parse_func_definition();
 			ParseResult parse_func_definition_args();
+			ParseResult parse_ret();
 
+		// semantic analysis of a node in the ast tree
+		ParseResult parse_node(ASTNode node, Scope* scope);
+		ParseResult parse_static_expression(ASTNode node);
+		ParseResult parse_globals();
+		
 	public:
+		// AST
+		ASTNode ast;
+		
 		Parser(TokenAgency tokenagency);
 		// parses tokenstream for syntax (checks for lexer errors first)
 		// if successful, the Parser->ast variable should be populated

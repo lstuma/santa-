@@ -100,6 +100,16 @@ Token TokenAgency::get_token(int i) {
     return *it;
 }
 
+int TokenAgency::get_token_pos(Token t) {
+    auto it = tokenstream.begin();
+    for(int i = 0; i < tokenstream.size(); i++) {
+        Token p = *it;
+        if(t.type == p.type && t.num == p.num && t.str == p.str && t.raw == p.raw && t.lineno == p.lineno) return i;
+        advance(it, 1);
+    }
+    return -1;
+}
+
 // returns an array of toktypes for the given tokenlist
 toktype* TokenAgency::array() {
     toktype* tokens = (toktype*) malloc(tokenstream.size() * sizeof(toktype));

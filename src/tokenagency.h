@@ -65,6 +65,7 @@ class TokenAgency {
   
     TokenAgency();
     Token get_token(int i);
+    int get_token_pos(Token t);
     toktype* array();
     std::list<Token> fetch_tokens();
 };

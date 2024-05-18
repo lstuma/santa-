@@ -87,6 +87,27 @@ ASTNode ASTNode::pop(int i) {
   return elem;
 }
 
+std::string ast_type_names[] = {
+  "undefined",
+  "stmnt",
+  "expr",
+  "operation",
+  "op",
+  "generic_value",
+  "func_call",
+  "func_call_args",
+  "var_def",
+  "conditional",
+  "func_def",
+  "func_def_args",
+  "terminal",
+  "block",
+  "id",
+  "val",
+  "pointer_expr",
+  "return",
+};
+
 std::string ASTNode::to_string() {
   return to_string(0);
 }
@@ -95,8 +116,8 @@ std::string ASTNode::to_string(int depth) {
   std::string s = "";
   for(int i = 0; i < depth-1; i++) s += "│  ";
   if(depth>0) s += "├─ ";
-  s += Color::bhblue + std::to_string(this->type) + Color::reset;
-  if(this->type==ast_terminal) s += " " + this->token.to_string();
+  s += Color::bhblue + std::to_string(this->type) + " <"+ ast_type_names[this->type] + "> " + Color::reset;
+  if(this->type==ast_terminal||this->type==ast_operator||this->type==ast_identifier||this->type==ast_value) s += " " + this->token.to_string();
   s += "\n";
   for(ASTNode child: this->children) s+=child.to_string(depth+1);
   return s;

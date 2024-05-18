@@ -1,3 +1,6 @@
+#ifndef astnode_h
+#define astnode_h
+
 #include <iomanip>
 #include <iostream>
 #include <cassert>
@@ -38,20 +41,24 @@ enum ast_type {
 	ast_statement = 1,
 	ast_expression = 2,
 
-	ast_operation,
-	ast_operator,
-	ast_generic_value,
-	ast_func_call,
-	ast_func_call_args,
+	ast_operation = 3,
+	ast_operator = 4,
+	ast_generic_value = 5,
+	ast_func_call = 6,
+	ast_func_call_args = 7,
+	ast_pointer_expr = 16,
 
-	ast_variable_definition,
-	ast_conditional,
-	ast_func_definition,
-	ast_func_def_args,
+	ast_variable_definition = 8,
+	ast_conditional = 9,
+	ast_func_definition = 10,
+	ast_func_def_args = 11,
 
-	ast_terminal,
+	ast_terminal = 12,
+	ast_identifier = 14,
+	ast_value = 15,
+	ast_ret = 17,
 
-	ast_block,
+	ast_block = 13,
 };
 
 class ASTNode {
@@ -90,3 +97,5 @@ class ASTNode {
 		std::string to_string();
 		std::string to_string(int depth);
 };
+
+#endif

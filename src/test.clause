@@ -1,9 +1,56 @@
-e = d
+r = 234
+s = 257
+e = + 3 6
 b = 4
-a()
-if a+b:
-	print(c)
-	print(d)
-	a = d+b-4
+a = + 7 b
+h = 7
+i = + h 7
+j = + 8 4
+k = + j - h 2
+l = + 2 5
+m = + 2 - 5 4
+n = * 2 5
+o = % 9 2
+p = * 3 5
+q = 2
+t = 77
+r = 2
+s = 28
+o = 342
+p = 343
+q = 32432432
+r = 23
+s = 21
+t = * s 2
+u = 23
+v = 24
+w = 25
+x = 26
+y = 27
+z = 42
+elf a(c):
+	*e = 5
 
-a(4,5,6)
+a(5)
+elf print():
+	g = 9
+	g = + g 9
+	return 5
+elf print(arg):
+	argvasgohuo = + 55 arg
+	argvasgohuo_two = 56
+if a:
+	c = 3
+	print(c)
+	d = 6
+	print(d)
+	a = + d - b 4
+	print(d)
+elf foo(test):
+	print(e)
+# test
+d = e
+e = + e 5
+if - d e:
+	print(d)
+a(4)
